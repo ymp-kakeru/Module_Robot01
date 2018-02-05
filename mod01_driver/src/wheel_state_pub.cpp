@@ -10,6 +10,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Float64.h>
 #include <mod01_driver/mod_drive.h>
 #include <mod01_driver/mod_joy.h>
 
@@ -27,18 +28,18 @@ using namespace std;
 #define geer_ratio 4 ;
 
 
-//#define numOfControllers 3
+int numOfControllers = 3;
 #define right_encoder_CH 2	// CN107
 #define left_encoder_CH	 3	// CN108
 
-int encoder_read()
+void encoder_read(int num, ros::Publisher pub)
 {
 	struct uin ibuf;
-	struct uout obug[numOfControllers];
+	struct uout obug[num];
 	static double time[4]	= {1,0,0};		//------array [0 1 2]----------//
 	static int enc_ct_right[4] = {0,0,0};		//  0:current, 1:last, 2:diff  //
 	static int enc_ct_left[4]	= {0,0,0};		//-----------------------------//
-	int fd, fds[numOfControllers];
+	int fd, fds[num];
 	int i, j;
 	double circumference = wheel_diameters*M_PI; //2pi*r
 	double length_right, length_left,delta_time ; 							
@@ -46,7 +47,7 @@ int encoder_read()
 
 	mod01_driver::mod_drive wheel_state;
 
-	for (i=0; i<numOfControllers; i++) {
+	for (i=0; i<num; i++) {
     	if ((fd = open(devfiles[i], O_RDWR)) == -1) {				//devise open
     		  fprintf(stderr, "%s: Open error\n", devfiles[i]);
     		  exit(1);
@@ -99,18 +100,16 @@ int encoder_read()
 
 	wheel_state.velocity_R = (length_right/delta_time);
 	wheel_state.velocity_L = (length_left/delta_time);
-	wheel_state_pub.publish(wheel_state);
+	pub.publish(wheel_state);
 
 	}
 	close(fd);
-
-	return 0;
 
 }
 
 void mod_type_Callback(const mod01_driver::mod_joy msg)
 {
-	int numOfControllers = msg.mod_type ;
+	numOfControllers = msg.mod_type ;
 }
 
 int main(int argc, char **argv)
@@ -122,7 +121,7 @@ int main(int argc, char **argv)
 
 	ros::Rate loop_rate(1000) ;
 
-	encoder_read();
+	encoder_read(numOfControllers, wheel_state_pub);
 
 	ros::spin();
 

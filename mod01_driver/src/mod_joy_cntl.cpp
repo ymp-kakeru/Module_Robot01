@@ -62,7 +62,7 @@ void Mod_joy_cntl::mod_joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		cout << "module is " << type << ". ok ? (Press Enter or else)";
 		if((getline(cin,line)) == ""){
 			cout << "JOB START" ;
-			mod_joy_.mod_type = type/2 ;
+			mod_joy_.mod_type = type/2 ; //mod num 1, 2 or 3 
 			flag = 1;
 		}
 	}
