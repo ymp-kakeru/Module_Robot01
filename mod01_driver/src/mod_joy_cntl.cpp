@@ -46,9 +46,23 @@ void Mod_joy_cntl::mod_joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
 	mod01_driver::mod_joy mod_joy_;
 	std::string line ;
+	ROS_INFO("hello");
 	
+	if(joy->buttons[drive_brake]==1){
+		mod_joy_.linear = joy->axes[axis_linear]*l_scale;
+	}else{
+		mod_joy_.linear = 0;
+	}
+	mod_joy_.angular = a_scale*joy->axes[axis_angular];
+	mod_joy_.spin_turn = joy->axes[7];
+	drive_pub.publish(mod_joy_) ;
+}
+
+int main(int argc, char **argv)
+{
+	ros::init(argc,argv,"mod_joy_cntl");
 	while(flag==1){
-		cout << "please select module type (2:Square, 4:Cross, 6:Circle)\n";
+		ROS_INFO("please select module type (2:Square, 4:Cross, 6:Circle)\n");
 		/*if(joy->axes[0]==1) {
 			type = 2;
 		}else if(joy->axes[1]==1){
@@ -66,20 +80,6 @@ void Mod_joy_cntl::mod_joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 			flag = 1;
 		}
 	}
-
-	if(joy->buttons[drive_brake]==1){
-		mod_joy_.linear = joy->axes[axis_linear]*l_scale;
-	}else{
-		mod_joy_.linear = 0;
-	}
-	mod_joy_.angular = a_scale*joy->axes[axis_angular];
-	mod_joy_.spin_turn = joy->axes[7];
-	drive_pub.publish(mod_joy_) ;
-}
-
-int main(int argc, char **argv)
-{
-	ros::init(argc,argv,"mod_joy_cntl");
 	Mod_joy_cntl Mod_joy_cntl ;
 	ros::spin() ;
 }
