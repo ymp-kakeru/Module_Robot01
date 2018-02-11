@@ -24,7 +24,7 @@ int main(int argc, char **argv)
   struct ccmd cmd;
   int i;
 
-  char *dev = "/dev/urbtc2";
+  char *dev = "/dev/urbtc1";
   
   signal(SIGINT, exit_program);
 
@@ -111,8 +111,8 @@ int main(int argc, char **argv)
 
   i = 0;
   while(quit_flag) {
-    unsigned short a = 0;//300.0*sin(i*3.14/655.360) + 512.0;
-    //a <<= 5;
+    unsigned short a = 300.0*sin(i*3.14/655.360) + 512.0;
+    a <<= 5;
 
     /*---各チャンネルのオフセット値の設定---*/
     cmd.offset[0] = cmd.offset[1] = cmd.offset[2] = cmd.offset[3] = a;

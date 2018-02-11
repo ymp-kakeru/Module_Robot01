@@ -37,17 +37,19 @@ class Mod_wheel_cntl
 	public:
 		//Mod_enc_read();
 		Mod_wheel_cntl();
-
+		//~Mod_wheel_cntl();
 	private:
-		imcs_func(int numOfControllers, const sensor_msgs::Joy::ConstPtr& joy);
+		void imcs_func(const sensor_msgs::Joy::ConstPtr& joy);//int numOfControllers,int first);//, const sensor_msgs::Joy::ConstPtr& joy);
 		//void mod_encCallback(const mod01_driver::mod_drive::ConstPtr& drive);
-		void mod_joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
+		//void mod_joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
 
 		ros::NodeHandle nh_;
 		ros::Subscriber joy_sub;
+		int numOfControllers,first;
+		
 		//ros::Subscriber enc_sub;
 		//ros::Publisher enc_pub;
-		int axis_linear;
+		/*int axis_linear;
 		int axis_angular;
 		int angular_offset;
 		//l_scale(0.1),
@@ -55,14 +57,15 @@ class Mod_wheel_cntl
 		int drive_brake;
 		int numOfControllers;
 		int first;
-
+*/
 };
-void Mod_wheel_cntl::mod_joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
-{
-	ROS_INFO("joy get");
-	imcs_func(numOfControllers, sensor_msgs::Joy joy);
 
-}
+/*void Mod_wheel_cntl::mod_joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
+{
+	int numOfControllers,first;
+	ROS_INFO("joy get");
+	imcs_func(numOfControllers,first);//, sensor_msgs::Joy &joy);
+}*/
 /*Mod_wheel_cntl::Mod_enc_read():
 {
 	ros::init(argc.argv,"Mod_Enc_Read");
@@ -75,30 +78,41 @@ Mod_wheel_cntl::Mod_wheel_cntl()
 {
 	//ros::init(argc,argv,"")
 	//enc_sub = nh_advertise<mod01_driver::mod_drive>("mod_enc/state",1000,mod_encCallback);
-	nh_.getParam("/numOfControllers",numOfControllers);
-	nh_.getParam("/first",first);
-	joy_sub = nh_.subscribe<sensor_msgs::Joy>("joy",1,&Mod_wheel_cntl::mod_joyCallback);
+	/*axis_linear(1),	axis_angular(0),angular_offset(0.3),
+	drive_brake(6)*/
+	joy_sub = nh_.subscribe<sensor_msgs::Joy>("joy",10,&Mod_wheel_cntl::imcs_func,this);
 }
 
-Mod_wheel_cntl::imcs_func(int numOfControllers,const sensor_msgs::Joy joy):
-	axis_linear(1),	axis_angular(0),angular_offset(0.3),
-	drive_brake(6)
+void Mod_wheel_cntl::imcs_func(const sensor_msgs::Joy::ConstPtr& joy)//,const sensor_msgs::Joy joy):
 {
+	
+	//int numOfControllers,first;
+	nh_.getParam("/numOfControllers",numOfControllers);
+	nh_.getParam("/first",first);
+	fprintf(stderr,"start\n");
+	int axis_linear=1;
+	int axis_angular=0;
+	int angular_offset=0.3;
+	int a=0;
+	//l_scale(0.1),
+	//a_scale(60),
+	int drive_brake=6;
+	
 	struct uin ibuf;
  	struct uout obuf[numOfControllers];
   	struct ccmd cmd;
   	static double time[4]	= {1,0,0};			//------array [0 1 2]----------//
-	static int enc_ct_right[4] = {0,0,0};		//  0:current, 1:last, 2:diff  //
+	static int enc_ct_right[4] = {0,0,0};		//  0:last, 1:current, 2:diff  //
 	static int enc_ct_left[4]	= {0,0,0};		//-----------------------------//
   	int fd, fds[numOfControllers];
   	int i, j;
-  	double length_right[numOfControllers] = {0,};
-  	double length_left[numOfControllers] = {0,};
-  	double vel_R[numOfControllers] = {0,};
-  	double vel_L[numOfControllers] = {0,};
+  	double length_right[4] = {};
+  	double length_left[4]={};//numOfControllers] = {};
+  	double vel_R=0;//numOfControllers]// = {};
+  	double vel_L=0;//numOfControllers]// = {};
 	double vel_Rd=0 , vel_Ld=0 ; 
 
-	while(first==0){
+	//while(first==0){
   	for (i=0; i<numOfControllers; i++) {
     if ((fd = open(devfiles[i], O_RDWR)) == -1) {
       fprintf(stderr, "%s: Open error\n", devfiles[i]);
@@ -135,30 +149,31 @@ Mod_wheel_cntl::imcs_func(int numOfControllers,const sensor_msgs::Joy joy):
     cmd.selin = CH2 | CH3 | SET_SELECT; /* SET_CH2_HIN | SET_SELECT;*/
     cmd.selout = SET_SELECT | CH2 | CH3; /* EEPROM データが正しければ不要 */
 
-//#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if __BYTE_ORDER == __LITTLE_ENDIAN
     cmd.offset[0] = cmd.offset[1] = cmd.offset[2] = cmd.offset[3] = 0x7fff;
     cmd.counter[0] = cmd.counter[1] = cmd.counter[2] = cmd.counter[3] = 0;
-/*#else
+#else
     cmd.offset[0] = cmd.offset[1] = cmd.offset[2] = cmd.offset[3] = 0xff7f;
     cmd.counter[0] = cmd.counter[1] = cmd.counter[2] = cmd.counter[3] = 0;
-#endif*/
+#endif
 
     cmd.posneg = SET_POSNEG | CH0 | CH1 | CH2 | CH3;
     cmd.breaks = SET_BREAKS | CH0 | CH1 | CH2 | CH3;
-
+    fprintf(stderr, "Line 160\n");
     if (ioctl(fd, URBTC_COUNTER_SET) < 0){
       fprintf(stderr, "ioctl: URBTC_COUNTER_SET error\n");
       exit(1);
-    }
+    }else{fprintf(stderr, "ioctl ok\n");}
     if (write(fd, &cmd, sizeof(cmd)) < 0) {
       fprintf(stderr, "write error\n");
       exit(1);
-    }
+    }else{fprintf(stderr, "write168 ok\n");}
     if (ioctl(fd, URBTC_DESIRE_SET) < 0){
       fprintf(stderr, "ioctl: URBTC_DESIRE_SET error\n");
       exit(1);
     }
   }
+  fprintf(stderr, "Line 175\n");
 
 
   for (j=0; j<numOfControllers; j++) {
@@ -166,12 +181,12 @@ Mod_wheel_cntl::imcs_func(int numOfControllers,const sensor_msgs::Joy joy):
 //#if __BYTE_ORDER == __LITTLE_ENDIAN
       obuf[j].ch[i].x = 0;
       obuf[j].ch[i].d = 0;
-      obuf[j].ch[i].kp = 0;
+      obuf[j].ch[i].kp = 10;
       obuf[j].ch[i].kpx = 1;
-      obuf[j].ch[i].kd = 0;
-      obuf[j].ch[i].kdx = 1;
-      obuf[j].ch[i].ki = 0;
-      obuf[j].ch[i].kix = 1;
+      obuf[j].ch[i].kd = 1;
+      obuf[j].ch[i].kdx = 10;
+      obuf[j].ch[i].ki = 1;
+      obuf[j].ch[i].kix = 2;
 /*#else
       obuf[j].ch[i].x = 0;
       obuf[j].ch[i].d = 0;
@@ -191,29 +206,116 @@ Mod_wheel_cntl::imcs_func(int numOfControllers,const sensor_msgs::Joy joy):
     obuf[j].ch[3].kp = 0x1000;
 #endif
   }*/
-  nh_.setpalam("/first",1) ;
+  //nh_.setPalam("/first",1) ;
+    fprintf(stderr,"1:first = %d\n",first);
+    //first = 1 ;
+   	nh_.deleteParam("/first");
+   	nh_.setParam("/first",1);
+   	nh_.getParam("/first",first);
+    fprintf(stderr,"2:first = %d\n",first);
 	}
-}
-for(j=0;j<numOfControllers;j++){
-	//ioctl(fds[j],URBTC_CONTINUOUS_READ);
-	read(fds[j],&ibuf,sizeof(ibuf));
-  	/*update current datas*/
-	time[0] = time[1];
-	time[1] = (double)ibuf.time;
+//}
+    fprintf(stderr,"while out \n");
+//-------------------------------------------------------
+	if(joy->buttons[drive_brake] == 1){
+		vel_Ld=vel_Rd=joy->axes[axis_linear];
+	} else {
+		vel_Ld=vel_Rd=0;
+	}
+	fprintf(stderr,"vel_Rd=%.3lf \n",vel_Rd);
+	/*read(fds[j], &ibuf, sizeof(ibuf));
+	fprintf(stderr,"enc_count_R = %d\n",ibuf.ct[right_encoder_CH]);
+	fprintf(stderr,"enc_count_L = %d\n",ibuf.ct[left_encoder_CH]);
+	*/i=1;
+	while(i <= 2){//abs(enc_ct_right[2]) <= 10 ){
+		fprintf(stderr, "L228 while in %d\n",i );
+		if(vel_Rd>=0.3){
+			 unsigned short a = 300.0*sin(i*3.14/655.360) + 50.0;
+    		 a <<= 5;
+    		for (j=0; j<numOfControllers; j++) {
+    		fprintf(stderr, "L238\n" );
+		#if __BYTE_ORDER == __LITTLE_ENDIAN
+    		fprintf(stderr, "L240\n" );
+     		 obuf[j].ch[2].x =a;
+
+     		 obuf[j].ch[3].x = -a;
+		#else
+    		  obuf[j].ch[2].x = obuf[j].ch[3].x = ((a & 0xff) << 8 | (a & 0xff00) >> 8);
+		#endif
+			//fprintf(stderr,"%x\r\n",obuf[j].ch[3].x);
+			read(fds[j], &ibuf, sizeof(ibuf));
+			fprintf(stderr,"enc_count_R = %d\n",ibuf.ct[right_encoder_CH]);
+			fprintf(stderr,"enc_count_L = %d\n",ibuf.ct[left_encoder_CH]);
+      		if (write(fds[j], &obuf[j], sizeof(obuf[j])) > 0) {
+      			i++;
+      		} else {
+				printf("write err\n");
+			break;
+    	  	}
+    		}
+    	}else if(vel_Rd<=-0.3){
+    		 unsigned short a = 300.0*sin(i*3.14/655.360) + 50.0;
+    		a <<= 5;
+    		for (j=0; j<numOfControllers; j++) {
+    		fprintf(stderr, "L238\n" );
+		#if __BYTE_ORDER == __LITTLE_ENDIAN
+    		fprintf(stderr, "L240\n" );
+     		 obuf[j].ch[2].x =-a;
+
+     		 obuf[j].ch[3].x = a;
+		#else
+    		  obuf[j].ch[2].x = obuf[j].ch[3].x = ((a & 0xff) << 8 | (a & 0xff00) >> 8);
+		#endif
+			//fprintf(stderr,"%x\r\n",obuf[j].ch[3].x);
+			read(fds[j], &ibuf, sizeof(ibuf));
+			fprintf(stderr,"enc_count_R = %d\n",ibuf.ct[right_encoder_CH]);
+			fprintf(stderr,"enc_count_L = %d\n",ibuf.ct[left_encoder_CH]);
+      		if (write(fds[j], &obuf[j], sizeof(obuf[j])) > 0) {
+      			i++;
+      		} else {
+				printf("write err\n");
+			break;
+    	  	}
+    		}
+    	}else{
+    		/*cmd.offset[0] = cmd.offset[1] = cmd.offset[2] = cmd.offset[3] = 0x7fff;
+		    cmd.counter[0] = cmd.counter[1] = cmd.counter[2] = cmd.counter[3] = 0;
+    		write(fds[j], &cmd, sizeof(cmd));*/
+    	}
+    }
+	for (i=0; i<numOfControllers; i++)
+    close(fds[i]);
+
+    /*for (j=0; j<numOfControllers; j++) {
+    	cmd.offset[0] = cmd.offset[1] = cmd.offset[2] = cmd.offset[3] = 0x7fff;
+    	write(fds[j], &cmd, sizeof(cmd));
+    }*/
+
+	/*for(j=0;j<numOfControllers;j++){
+	if (read(fds[j], &ibuf, sizeof(ibuf)) != sizeof(ibuf)) {
+      fprintf(stderr, "Read size mismatch.\n");
+      exit(1);
+    }
+	fprintf(stderr,"enc_count_R = %d\n",ibuf.ct[right_encoder_CH]);
+	fprintf(stderr,"enc_count_L = %d\n",ibuf.ct[left_encoder_CH]);
+  	*//*update current datas*/
+	//time[0] = time[1];
+	/*time[1] = (double)ibuf.time;
 	time[2] = time[1]-time[0];
 
-	enc_ct_right[0] = enc_ct_right[1];
+	//enc_ct_right[0] = enc_ct_right[1];
 	enc_ct_right[1] = (int)ibuf.ct[right_encoder_CH];
 	enc_ct_right[2] = enc_ct_right[1]-enc_ct_right[0];
+	fprintf(stderr, "enc_ct_right : %d\n",enc_ct_right[2] );
 
-	enc_ct_left[0] = enc_ct_left[1];
+	//enc_ct_left[0] = enc_ct_left[1];
 	enc_ct_left[1] = (int)ibuf.ct[left_encoder_CH];
 	enc_ct_left[2] = enc_ct_left[1]-enc_ct_left[0];
-
-
+	fprintf(stderr, "enc_ct_left : %d\n\n",enc_ct_left[2] );
+*/
 	/*check the overflow*/
  	// about diff time
-	if(time[2] < 0)
+	/*if(time[2] < 0)
 		time[2] += 65536;     
 	// about diff enc_cnt_right
 	if(enc_ct_right[2] > 6553)		// 6553 = 65536/10 
@@ -225,32 +327,39 @@ for(j=0;j<numOfControllers;j++){
 		enc_ct_left[2] = enc_ct_left[2] - 65536;
   	else if(enc_ct_left[2] < -6553)
 		enc_ct_left[2] = enc_ct_left[2] + 65536;
-
+	fprintf(stderr, "enc_ct_right : %d\n",enc_ct_right[2] );
+	fprintf(stderr, "enc_ct_left : %d\n\n",enc_ct_left[2] );
 	/*check end*/
-	length_right[j] = enc_ct_right[2]/max_enc * circumference * geer_ratio;
-	length_left[j] = enc_ct_left[2]/max_enc * circumference * geer_ratio;
-	delta_time = time[2]/1000 ;
+	/*length_right[j] = (enc_ct_right[2]/max_enc) * wheel_diameters * M_PI * geer_ratio;
+	length_left[j] = (enc_ct_left[2]/max_enc) * wheel_diameters * M_PI * geer_ratio;
+	double delta_time = time[2]/1000 ;
 
-	vel_R[j] = length_right[j]/delta_time;
-	vel_L[j] = length_left[j]/delta_time;
-	ROS_INFO("velocity_R = %.5lf, velocity_L = %.5lf",vel_R[j],vel_L[j]);
+	// ------ update the past datas ------
+	time[0] = time[1];
+	enc_ct_right[0] = enc_ct_right[1];
+	enc_ct_left[0] = enc_ct_left[1];*/
+	// ------ finish to update the past data ------
+
+/*	vel_R[j] = length_right[j]/delta_time;
+	vel_L[j] = length_left[j]/delta_time;*/
+	/*vel_R = length_right[j];
+	vel_L = length_left[j];
+	fprintf(stderr,"velocity_R = %.5lf, velocity_L = %.5lf\n",vel_R,vel_L);
 	}
+
+	i=0;*/
+
 	// turn mode
-
-
-	while((joy->axes[axis_angular] > angular_offset) || (joy->axes[axis_angular] < angular_offset) {
+	/*while((joy->axes[axis_angular] > angular_offset) || (joy->axes[axis_angular] < angular_offset)) {
+		fprintf(stderr, "turn mode\n");
 		if(joy->axes[axis_angular] > 0){
 			i=0;
 			unsigned short a = 300.0*sin(i*3.14/655.360) + 512.0;
     		a <<= 5;
     		for (j=0; j<numOfControllers; j++) {
-			// #if __BYTE_ORDER == __LITTLE_ENDIAN
-    			obuf[j].ch[left_motor_CH].x = a;
+				obuf[j].ch[left_motor_CH].x = a;
     			obuf[j].ch[right_motor_CH].x = -a;
-			// #else
-   //  		  obuf[j].ch[2].x = obuf[j].ch[3].x = ((a & 0xff) << 8 | (a & 0xff00) >> 8);
-			// #endif
-    			if (write(fds[j], &obuf[j], sizeof(obuf[j])) > 0) {
+				if (write(fds[j], &obuf[j], sizeof(obuf[j])) > 0) {
 					i++;
     	 		} else {
 					printf("write err\n");
@@ -262,49 +371,45 @@ for(j=0;j<numOfControllers;j++){
 			unsigned short a = 300.0*sin(i*3.14/655.360) + 512.0;
     		a <<= 5;
     		for (j=0; j<numOfControllers; j++) {
-			// #if __BYTE_ORDER == __LITTLE_ENDIAN
-    		obuf[j].ch[left_motor_CH].x = -a;
+	 		obuf[j].ch[left_motor_CH].x = -a;
     		obuf[j].ch[right_motor_CH].x = a;
-			// #else
-   //  		  obuf[j].ch[2].x = obuf[j].ch[3].x = ((a & 0xff) << 8 | (a & 0xff00) >> 8);
-			// #endif
-    			if (write(fds[j], &obuf[j], sizeof(obuf[j])) > 0) {
+			if (write(fds[j], &obuf[j], sizeof(obuf[j])) > 0) {
 					i++;
-    	 		} else {
-					printf("write err\n");
-					break;
-      			}
-    		}
-		} 
-	}
-
-	// break mode
-	if(joy->buttons[drive_brake] == 1){
-		vel_Ld=vel_Rd=joy->axes[axis_linear]
-	} else {
-		vel_Ld=vel_Rd=0;
-	}
-
-	for(j=0;j<numOfControllers;j++){
-		cmd.offset[right_motor_CH]	= vel_Rd - vel_R[j];
-		cmd.offset[left_motor_CH]	= vel_Ld - vel_L[j];
-		if (write(fds[j], &obuf[j], sizeof(obuf[j])) > 0) {
-			i++;
-    	} else {
-			printf("write err\n");
+     		} else {
+				printf("write err\n");
 			break;
+    		}
+    		}
+		}
+	}*/
+	
+	/*for(j=0;j<numOfControllers;j++){
+		cmd.offset[right_motor_CH]	= vel_Rd - vel_R;
+		cmd.offset[left_motor_CH]	= vel_Ld - vel_L;
+		if (ioctl(fds[j], URBTC_COUNTER_SET) < 0){
+     		 fprintf(stderr, "ioctl: URBTC_COUNTER_SET error\n");
+      		exit(1);
       	}
-	}
+		if (write(fds[j], &cmd, sizeof(cmd)) < 0) {
+      		fprintf(stderr, "write error 317\n");
+      		exit(1);
+        }
+    */  
+	//}
 
+	fprintf(stderr,"--------------------End Callback---------------------- \n");
+};
 
 
 int main(int argc, char **argv)
 {
 	ros::init(argc,argv,"Mod_drive");
-	ros::Rate loop_rate(10);
-	Mod_wheel_cntl::Mod_wheel_cntl();
+	ros::NodeHandle n ;
+	//ros::Rate loop_rate(10);
+	fprintf(stderr,"main\n" );
+	Mod_wheel_cntl Mod_wheel_cntl_;
 	ros::spin();
-	loop_rate.sleep();
-}
+	//loop_rate.sleep();
+};
 
 

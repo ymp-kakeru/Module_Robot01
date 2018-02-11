@@ -72,6 +72,9 @@ catkin_package(
 add_executable(wheel_drive_beta src/wheel_drive_beta.cpp)
 target_link_libraries(wheel_drive_beta ${catkin_LIBRARIES} )
 
+add_executable(wheel_drive src/drive_omg.cpp)
+target_link_libraries(wheel_drive ${catkin_LIBRARIES} )
+
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

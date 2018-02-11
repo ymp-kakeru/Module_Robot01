@@ -96,12 +96,12 @@ int main(int argc, char **argv)
 #if __BYTE_ORDER == __LITTLE_ENDIAN
       obuf[j].ch[i].x = 0;
       obuf[j].ch[i].d = 0;
-      obuf[j].ch[i].kp = 0;
+      obuf[j].ch[i].kp = 10;
       obuf[j].ch[i].kpx = 1;
-      obuf[j].ch[i].kd = 0;
-      obuf[j].ch[i].kdx = 1;
-      obuf[j].ch[i].ki = 0;
-      obuf[j].ch[i].kix = 1;
+      obuf[j].ch[i].kd = 1;
+      obuf[j].ch[i].kdx = 10;
+      obuf[j].ch[i].ki = 1;
+      obuf[j].ch[i].kix = 5;
 #else
       obuf[j].ch[i].x = 0;
       obuf[j].ch[i].d = 0;
@@ -124,7 +124,8 @@ int main(int argc, char **argv)
 
   i = 0;
   while(quit_flag) {
-    unsigned short a = 300.0*sin(i*3.14/655.360);// + 512.0;
+    unsigned short a = 300.0*sin(i*3.14/655.360)+ 512.0;
+    fprintf(stderr, "a=%d\n",a );
     a <<= 5;
     for (j=0; j<numOfControllers; j++) {
 

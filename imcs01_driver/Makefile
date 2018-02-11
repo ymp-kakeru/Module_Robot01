@@ -1,8 +1,14 @@
 CC = gcc
 CFLAGS = -o -Wall
 
-h8test: h8test.c
+urobot_enc_pos: urobot_enc_pos.c
 	$(CC) $(CFLAGS) -o $@ $< -lm
+
+uread: uread.c
+	$(CC) $(CFLAGS) -o $@ $< -lm
+
+h8test: h8test.c
+	$(CC) $(CFLAGS) -o $@ $< -lm	
 
 urobotm: urobotm.c
 	$(CC) $(CFLAGS) -o $@ $< -lm
@@ -10,8 +16,7 @@ urobotm: urobotm.c
 urobot_1ch_enc_pos: urobot_1ch_enc_pos.c
 	$(CC) $(CFLAGS) -o $@ $< -lm
 
-urobot_enc_pos: urobot_enc_pos.c
-	$(CC) $(CFLAGS) -o $@ $< -lm
+
 
 urobotc_ad: urobotc_ad.c
 	$(CC) $(CFLAGS) -o $@ $< -lm
