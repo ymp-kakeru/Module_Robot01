@@ -17,7 +17,7 @@ void exit_program();
 int quit_flag = 1;
 
 #define numOfControllers 1
-static char *devfiles[] = {"/dev/urbtc1"};
+static char *devfiles[] = {"/dev/urbtc1"};//,"/dev/urbtc2"};
 
 int main(int argc, char **argv)
 {
@@ -58,12 +58,12 @@ int main(int argc, char **argv)
       exit(1);
     }
 
-    cmd.retval = 0 /* RETURN_VAL */;
+    cmd.retval =  RETURN_VAL ;
     cmd.setoffset  = CH0 | CH1 | CH2 | CH3;
     cmd.setcounter = CH0 | CH1 | CH2 | CH3;
     cmd.resetint   = CH0 | CH1 | CH2 | CH3;
 
-    cmd.selin = CH0 | CH1 | SET_SELECT; /* AD in:ch0,ch1    ENC in:ch2,ch3*/
+    cmd.selin = SET_SELECT; /* AD in:ch0,ch1    ENC in:ch2,ch3*/
     cmd.selout = SET_SELECT | CH0 | CH1 | CH2 | CH3; /*  PWM out:ch0,ch1,ch2,ch3*/
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -98,9 +98,9 @@ int main(int argc, char **argv)
       obuf[j].ch[i].d = 0;
       obuf[j].ch[i].kp = 10;
       obuf[j].ch[i].kpx = 1;
-      obuf[j].ch[i].kd = 1;
+      obuf[j].ch[i].kd = 0;
       obuf[j].ch[i].kdx = 10;
-      obuf[j].ch[i].ki = 1;
+      obuf[j].ch[i].ki = 0;
       obuf[j].ch[i].kix = 5;
 #else
       obuf[j].ch[i].x = 0;
@@ -124,13 +124,13 @@ int main(int argc, char **argv)
 
   i = 0;
   while(quit_flag) {
-    unsigned short a = 300.0*sin(i*3.14/655.360)+ 512.0;
+    unsigned short a= 300.0*sin(i*3.14/655.360)+ 512.0;
     fprintf(stderr, "a=%d\n",a );
     a <<= 5;
     for (j=0; j<numOfControllers; j++) {
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-      obuf[j].ch[2].x = obuf[j].ch[3].x = a;
+      obuf[j].ch[2].x = obuf[j].ch[3].x = -a;
 #else
       obuf[j].ch[2].x = obuf[j].ch[3].x = ((a & 0xff) << 8 | (a & 0xff00) >> 8);
 #endif
@@ -144,6 +144,7 @@ int main(int argc, char **argv)
       }
     }
   }
+  
 
   for (i=0; i<numOfControllers; i++)
     close(fds[i]);

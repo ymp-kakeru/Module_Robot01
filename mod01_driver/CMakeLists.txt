@@ -66,14 +66,16 @@ catkin_package(
 #add_executable(mod_joy_cntl src/mod_joy_cntl.cpp)
 #target_link_libraries(mod_joy_cntl ${catkin_LIBRARIES} )
 
-#add_executable(wheel_state_pub src/wheel_state_pub.cpp)
-#target_link_libraries(wheel_state_pub ${catkin_LIBRARIES} )
+add_executable(wheel_state_pub src/wheel_state_pub.cpp)
+target_link_libraries(wheel_state_pub ${catkin_LIBRARIES} )
 
 add_executable(wheel_drive_beta src/wheel_drive_beta.cpp)
 target_link_libraries(wheel_drive_beta ${catkin_LIBRARIES} )
 
-add_executable(wheel_drive src/drive_omg.cpp)
-target_link_libraries(wheel_drive ${catkin_LIBRARIES} )
+
+
+#add_executable(wheel_drive src/drive_omg.cpp)
+#target_link_libraries(wheel_drive ${catkin_LIBRARIES} )
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

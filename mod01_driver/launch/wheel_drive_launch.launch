@@ -1,12 +1,19 @@
 <launch>
 	<param name="/first" type="int" value="0"/>
 	<param name="/numOfControllers" type="int" value="2"/>
-	
+
+	<!-- Joy node -->
 	<node respawn="true" pkg="joy" type="joy_node" name="Mod_joy" >
 	    <param name="dev" type="string" value="/dev/input/js0" />
 		<param name="deadzone" value="0.12" />
 	</node>
 
-	<node respawn="true" pkg="mod01_driver" type="wheel_drive_beta" name="wheel_cntl">
+	<!-- Joy Twist -->
+	<node respawn="true" pkg="joy_cntl" type="joy_cntl_node" output="screen" name="Joy_twist">
+		<param name="cmdvel_topic_name" value="cmd_vel" />
+		<param name="joy_topic_name" value="joy" />
+	</node>
+
+	<node respawn="true" pkg="mod01_driver" type="wheel_state_pub" name="wheel_cntl">
 	</node>
 </launch>
