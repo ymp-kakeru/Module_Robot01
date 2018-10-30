@@ -1,0 +1,29 @@
+<launch>
+  <!-- joy node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="forest_joy">
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12"/>
+  </node>
+
+  <!-- Axis -->
+  <param name="axis_linear" value="1" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+  <param name="scale_linear" value="50" type="double"/>
+  <param name="scale_angular" value="50" type="double"/>
+  <param name="start_button" value="4" type="int"/>
+  <node pkg="mod01_cntl" type="mod01_cntl_node" name="joy_cntl"/>
+
+  <!-- Arduino -->
+  <node name="rosserial_python" pkd="rosserial_python" type="serial_node.py" output="screen">
+    <param name="port" value="/dev/ttyACM0" />
+  </node>
+
+  <!-- hokuyo3d -->
+  <node name="hokuyo3d" pkg="hokuyo3d" type="hokuyo3d" output="screen">
+    <param name="ip" value="192.168.0.10" />
+    <param name="output_cycle" value="frame" />
+    <param name="frame_id" value="hokuyo3d" />
+    <param name="interlace" value="4" />
+  </node>
+
+</launch>
