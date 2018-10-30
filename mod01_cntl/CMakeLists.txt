@@ -9,14 +9,22 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package(
-
 )
 
-add_executable(
-  ${PROJECT_NAME}_node src/mod01_joy.cpp
+include_directories(include
+  ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+)
+
+add_executable(${PROJECT_NAME}_joy_node src/mod01_joy.cpp)
+add_executable(${PROJECT_NAME}_imu_node src/imu_samplinger.cpp)
+
+target_link_libraries(
+  ${PROJECT_NAME}_joy_node
+  ${catkin_LIBRARIES}
 )
 
 target_link_libraries(
-  ${PROJECT_NAME}_node
+  ${PROJECT_NAME}_imu_node
   ${catkin_LIBRARIES}
 )
