@@ -28,8 +28,8 @@ $ sudo chmod 777 /dev/ttyACM*
 ```
 Open lanuch file, set the port of Arduino. You have already found the port (ttyACM*).
 ```cpp
-    $ cd ~/catkin_ws/src/Module_Robot01/mod01_cntl
-    $ subl launch/mod01_simple.launch
+$ cd ~/catkin_ws/src/Module_Robot01/mod01_cntl
+$ subl launch/mod01_simple.launch
 ```
 	4th. Launch
 Launch simple experiment program. You have to choose sampling rate and filename.
