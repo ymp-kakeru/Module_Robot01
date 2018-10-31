@@ -42,3 +42,10 @@ The saved datas are  `/home/catkin_ws/Module_Robot01/DataBox/hoge.csv` .
 
 4. After
 Turn off Robot, remove battery and all USBs.
+
+##How to convert Point Cloud2 (hokuyo3d) to PCD data.
+use this command on your terminal.
+```cpp
+$ mkdir ~/catkin_ws/Module_Robot01/DataBox/<output_directory>
+$ rosrun pcl_ros bag_to_pcd <input_file.bag> /hokuyo3d/hokuyo_cloud2 <output_directory>
+```
