@@ -17,7 +17,8 @@ include_directories(include
 )
 
 add_executable(${PROJECT_NAME}_joy_node src/mod01_joy.cpp)
-add_executable(${PROJECT_NAME}_imu_node src/imu_samplinger.cpp)
+#add_executable(${PROJECT_NAME}_imu_node src/imu_samplinger.cpp)
+add_executable(${PROJECT_NAME}_imu_node src/imu_samplinger_new.cpp)
 
 target_link_libraries(
   ${PROJECT_NAME}_joy_node
