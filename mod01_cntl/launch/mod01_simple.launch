@@ -35,4 +35,8 @@
     <param name="FileName" type="string" value="/home/ymp/catkin_ws/src/Module_Robot01/DataBox/$(arg filename)"/>
   </node>
 
+  <!-- hokuyo_cloud2 rosbag record -->
+  <arg name="pcl_name" defult="test"/>
+  <node name="rosbag_record_pc2" pkg="rosbag" type="record -O /home/ymp/catkin_ws/src/Module_Robot01/DataBox/pcl_bag/$(arg pcl_name)" args="/hokuyo3d/hokuyo_cloud2"/>
+
 </launch>
