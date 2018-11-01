@@ -29,10 +29,10 @@ Imu_samplinger::Imu_samplinger():
   ROS_INFO("Sampling Now %d",count) ;
 
   ros::Rate rate(SampTime);
-  while(ros::ok){
+  //while(ros::ok){
     imu_sub = nh_.subscribe<sensor_msgs::Imu>("hokuyo3d/imu",10,&Imu_samplinger::imuCb,this);
     rate.sleep();
-  }
+  //}
 }
 
 /*void Imu_samplinger::timeCb(const ros::TimerEvent& event)
@@ -43,7 +43,7 @@ Imu_samplinger::Imu_samplinger():
 void Imu_samplinger::imuCb(const sensor_msgs::Imu::ConstPtr& imu)
 {
   sensor_msgs::Imu imu_data;
-  float time = count / SampTime;
+  float time = count * SampTime;
 
   std::ofstream ofs(FileName.c_str(),std::ios::app);
   if(count==0){
