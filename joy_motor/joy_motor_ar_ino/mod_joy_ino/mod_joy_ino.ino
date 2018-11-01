@@ -5,7 +5,7 @@
 #define num_of_motor 6
 #define MIN_PWM -255
 #define MAX_PWM 255
-#define bias 1
+#define bias 0.8
 int dir_pin_array[6] = {22,23, 26,27, 24,25};
 
 int pwm_pin_array[6] = {4, 5,8, 9, 6,7};

@@ -9,13 +9,14 @@
   <param name="axis_linear" value="1" type="int"/>
   <param name="axis_angular" value="0" type="int"/>
   <param name="scale_linear" value="50" type="double"/>
-  <param name="scale_angular" value="50" type="double"/>
-  <param name="start_button" value="4" type="int"/>
+  <param name="scale_angular" value="180" type="double"/>
+  <param name="start_button" value="10" type="int"/>
   <node pkg="mod01_cntl" type="mod01_cntl_joy_node" name="joy_cntl"/>
 
   <!-- Arduino -->
-  <node name="rosserial_python" pkd="rosserial_python" type="serial_node.py" output="screen">
+  <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py" output="screen">
     <param name="port" value="/dev/ttyACM0" />
+    <param name="baud" value="57600" />
   </node>
 
   <!-- hokuyo3d -->
