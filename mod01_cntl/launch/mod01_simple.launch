@@ -31,7 +31,7 @@
   <arg name="samplinghz" default="5"/>
   <arg name="filename" default="test.csv"/>
   <node name="imu_samplinger" pkg="mod01_cntl" type="mod01_cntl_imu_node">
-    <param name="SamplingTime" value="samplinghz"/>
+    <param name="SamplingTime" value="$(arg samplinghz)"/>
     <param name="FileName" value="/home/ymp/catkin_ws/src/Module_Robot01/DataBox/$(arg filename)"/>
   </node>
 </launch>
