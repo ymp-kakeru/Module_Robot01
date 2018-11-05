@@ -47,15 +47,20 @@ void Imu_samplinger::imuCb(const sensor_msgs::Imu::ConstPtr& imu)
 {
 //  sensor_msgs::Imu imu_data;
   geometry_msgs::Vector3 imu_data;
+  geometry_msgs::Vector3 ang_data;
+
   imu_data.x = imu->linear_acceleration.x;
   imu_data.y = imu->linear_acceleration.y;
   imu_data.z = imu->linear_acceleration.z;
+
+  ang_data.x = imu->angular_velocity.x;
+  ang_data.y = imu->angular_velocity.y;
+  ang_data.z = imu->angular_velocity.z;
 
   float time = count / SampTime;
   ROS_INFO("Sampling Now %d",count) ;
   std::ofstream ofs(FileName.c_str(),std::ios::app);
   //std::ostream& ofs {std::cout};
-  std::cout << imu_data.x << std::endl ;
    if (!ofs)
   {
     std::cout << "cannot open file " << FileName << std::endl;
@@ -63,12 +68,16 @@ void Imu_samplinger::imuCb(const sensor_msgs::Imu::ConstPtr& imu)
   } 
 
   if(count==0){
-    ofs << "time" << "," << "x" << "," << "y" << "," << "z" <<"\n" ;
+    ofs << "time" << "," << "linear_x" << "," << "linear_y" << "," << "linear_z" 
+    << "," << "angular_.x" << "," << "angular_y" << "," << "angular_.z" <<"\n" ;
   }else{
     ofs << time << ",";
     ofs << imu_data.x << ",";
     ofs << imu_data.y << ",";
-    ofs << imu_data.z << "\n";
+    ofs << imu_data.z << ",";
+    ofs << ang_data.x << ",";
+    ofs << ang_data.y << ",";
+    ofs << ang_data.z << "\n";
   }
   count++;
 }
