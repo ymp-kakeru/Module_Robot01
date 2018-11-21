@@ -42,7 +42,8 @@ void loop() {
 }
 
 void wheelCb(const geometry_msgs::Twist& cmd_vel_s ) {
-  int pwm = cmd_vel_s.linear.x *255/50;
+  int pwm = cmd_vel_s.linear.x *255 ;
+  int pwm_wheelie = cmd_vel_s.linear.y * 255;
   int ang = cmd_vel_s.angular.z;
   
   if(pwm == 0){  
@@ -72,7 +73,11 @@ void wheelCb(const geometry_msgs::Twist& cmd_vel_s ) {
     {
       if( pwm >= 0){
         digitalWrite(dir_pin_array[i], spin_negative[i]);
+        if((pwm_wheelie >= 0)&&((i==1)||(i==4))){
+          analogWrite(pwm_pin_array[i], fabs(pwm_wheelie));
+        }else{
         analogWrite(pwm_pin_array[i], fabs(pwm));
+        }
       }else{
         digitalWrite(dir_pin_array[i], spin_positive[i]);
         analogWrite(pwm_pin_array[i], fabs(pwm));

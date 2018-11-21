@@ -6,11 +6,14 @@
   </node>
 
   <!-- Axis -->
+  <arg name="bias" default="0.5"/>
+
   <param name="axis_linear" value="1" type="int"/>
   <param name="axis_angular" value="0" type="int"/>
-  <param name="scale_linear" value="50" type="double"/>
+  <param name="scale_linear" value="1" type="double"/>
   <param name="scale_angular" value="180" type="double"/>
   <param name="start_button" value="10" type="int"/>
+  <param name="wheelie_bias" value="$(arg bias)" type="double"/>
   <node pkg="mod01_cntl" type="mod01_cntl_joy_node" name="joy_cntl"/>
 
   <!-- Arduino -->
@@ -19,6 +22,8 @@
     <param name="baud" value="57600" />
   </node>
 
+  <!-- tf -->
+  <node name="map_tf" pkg="tf" type="static_transform_publisher" args="0 0 1 0 0 3.14 hokuyo3d map_tf 100" />
   <!-- hokuyo3d -->
   <node name="hokuyo3d" pkg="hokuyo3d" type="hokuyo3d" output="screen">
     <param name="ip" value="192.168.0.10" />
