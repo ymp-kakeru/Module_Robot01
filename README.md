@@ -46,6 +46,7 @@ Turn off Robot, remove battery and all USBs.
 ## How to record PCL data.
 In another terminal, write bottom command.
 ```cpp
+$ cd ~/catkin_ws/src/Module_Robot01/DataBox
 $ rosbag record -O <your_pcl_filename> /hokuyo3d/hokuyo_cloud2
 ```
 
